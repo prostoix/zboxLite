@@ -35,57 +35,57 @@ lastbuttontime = 0
 # OLED
 #########################################
 import smbus
-from ssd1306 import SSD1306_Display
+from luma.core.interface.serial import i2c, spi, pcf8574
+from luma.core.render import canvas
+from luma.oled.device import ssd1306
 from PIL import Image, ImageDraw, ImageFont
+
 font0 = ImageFont.truetype(font="lsansd.ttf", size=12, index=0, encoding='')
 font1 = ImageFont.truetype(font="lsans.ttf" , size=12, index=0, encoding='')
 font2 = ImageFont.truetype(font="lsans.ttf" , size=10, index=0, encoding='')
-dis = SSD1306_Display(0)
-dis.initDisplay()
+
+serial = i2c(port=0, address=0x3C)
+dis = ssd1306(serial)
 
 
 def display(t1,t2,t3,t4,t5):
-	i = Image.new("1", (128,64))
-	d = ImageDraw.Draw(i, mode="1")
+    i = Image.new(dis.mode, dis.size)
+    d = ImageDraw.Draw(i)
+    with canvas(dis) as d:
+      d.rectangle((0,(4*12)+1,127,(4*12)+12), fill=1, outline=1)
 
-	d.rectangle((0,(4*12)+1,127,(4*12)+12), fill=1, outline=1)
-
-	d.text((0, 0), t1, fill=1, font=font0)
-	d.text((0,12), t2, fill=1, font=font1)
-	d.text((0,24), t3, fill=1, font=font1)
-	d.text((0,36), t4, fill=1, font=font2)
-	d.text((0,48), t5, fill=0, font=font0)
-	dis.writeBuffer(dis.img2buffer(i.getdata()))
-	dis.displayBuffer()
-	time.sleep(0.002)
+      d.text((0, 0), t1, fill=1, font=font0)
+      d.text((0,12), t2, fill=1, font=font1)
+      d.text((0,24), t3, fill=1, font=font1)
+      d.text((0,36), t4, fill=1, font=font2)
+      d.text((0,48), t5, fill=0, font=font0)
+    
+      time.sleep(0.002)
 
 mymenu = ["Select Soundfont",
-	  "Select Preset",
-	  "Back",
-	  "",
-	  "Power off"]
+      "Select Preset",
+      "Back",
+      "",
+      "Power off"]
 
 def displaymenu():
-	global myoption
+    global myoption
 
-	optionselected=[1,1,1,1,1]
-	optionselected[myoption]=0
+    optionselected=[1,1,1,1,1]
+    optionselected[myoption]=0
 
-	i = Image.new("1", (128,64))
-	d = ImageDraw.Draw(i, mode="1")
+    i = Image.new(dis.mode, dis.size)
+    d = ImageDraw.Draw(i)
+    with canvas(dis) as d:
+      d.rectangle((0,(myoption*12)+1,127,(myoption*12)+12), fill=1, outline=1)
 
-	d.rectangle((0,(myoption*12)+1,127,(myoption*12)+12), fill=1, outline=1)
+      d.text((0,0) , mymenu[0], fill=optionselected[0], font=font0)
+      d.text((0,12), mymenu[1], fill=optionselected[1], font=font0)
+      d.text((0,24), mymenu[2], fill=optionselected[2], font=font0)
+      d.text((0,36), mymenu[3], fill=optionselected[3], font=font0)
+      d.text((0,48), mymenu[4], fill=optionselected[4], font=font0)
 
-	d.text((0,0) , mymenu[0], fill=optionselected[0], font=font0)
-	d.text((0,12), mymenu[1], fill=optionselected[1], font=font0)
-	d.text((0,24), mymenu[2], fill=optionselected[2], font=font0)
-	d.text((0,36), mymenu[3], fill=optionselected[3], font=font0)
-	d.text((0,48), mymenu[4], fill=optionselected[4], font=font0)
-
-
-	dis.writeBuffer(dis.img2buffer(i.getdata()))
-	dis.displayBuffer()
-	time.sleep(0.002)
+      time.sleep(0.002)
 
 
 
@@ -136,9 +136,9 @@ fs.start()
 fs.start_midi()  # Default is alsa_seq
 
 # Test the get_gain and set a new gain:
-print "Current gain: " + str(fs.get_gain())
+print("Current gain: " + str(fs.get_gain()))
 fs.set_gain(0.3)
-print "Updated gain: " + str(fs.get_gain())
+print("Updated gain: " + str(fs.get_gain()))
 
 global sfid
 sfid=0
@@ -154,15 +154,15 @@ convert_real = 0
 queue = 0
 
 # Print port list
-print "Port list:"
+print("Port list:")
 for el in connectionlist:
-    print el
+    print(el)
 
 # Locate Fluidsynth and set the destination port.
 for el in connectionlist:
     if 'FLUID' in el[0]:
         dest = (el[1], 0)
-        print 'Connected to ' + el[0]
+        print('Connected to ' + el[0])
 
 # Locate USB MIDI IN and set the sender port.
 for el in connectionlist:
@@ -170,7 +170,7 @@ for el in connectionlist:
         if 'FLUID' not in el[0]:
             if 'aconnect' not in el[0]:
                 sender= (el[1], 0)
-                print 'Connected to ' + el[0]
+                print('Connected to ' + el[0])
                 break
 
 
@@ -251,7 +251,7 @@ def load_action():
 display("OK","","","","")
 load_action() # Load first SF2 file on folder
 
-print "Let's go"
+print("Let's go")
 
 #########################################
 # Loop
@@ -308,7 +308,7 @@ while True:
 
 
 
-print "stopping..."
+print("stopping...")
 fs.stop_midi()
 fs.delete()
 display("Please wait.","Closing system...","","","")
