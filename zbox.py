@@ -94,7 +94,7 @@ def displaymenu():
 #########################################
 # Files
 #########################################
-	
+    
 import glob
 import os
 
@@ -185,68 +185,68 @@ skipload=False
 max_preset=0
 
 def load_action():
-	global sfid, preset, bank, mymode, menumode, myoption, mysf2, max_options, txt_preset
-	global lastbuttontime, now, skipload, max_preset
+    global sfid, preset, bank, mymode, menumode, myoption, mysf2, max_options, txt_preset
+    global lastbuttontime, now, skipload, max_preset
 
-        lastbuttontime = now
+    lastbuttontime = now
 
-        if myoption>max_options:
-	    myoption=0
-        if myoption<0:
-	    myoption=max_options
+    if myoption>max_options:
+        myoption=0
+    if myoption<0:
+        myoption=max_options
 
-	if menumode:
-	    displaymenu()
-	    return
+    if menumode:
+        displaymenu()
+        return
 
-	elif mymode==1:
-	    mysf2=myoption
-	    if len(lista_sf2)!=0:
-		    display(str(mysf2)+" Loading...",lista_sf2[mysf2],"","","")
-	    else:
-		    skipload=True
-	    if not skipload:
-	        preset=0
-	        if sfid > 0:
-		    fs.sfunload(sfid)
-		sfid = fs.sfload(lista_sf2[mysf2])
-	        fs.program_select(channel, sfid, bank, 0)
-	    skipload=False
-	    if sfid>0:
-		    if len(lista_sf2)>0:
-		        inst = fs.get_instrument_list(sfid,lista_sf2[mysf2])
-		        if len(inst) >0:
-			        txt_preset=inst[str(bank).zfill(3) + '-' + str(preset).zfill(3)]
-		        max_preset=len(inst)-2
-		    else:
-		        inst=0
-		        txt_preset="VOID"
-		        max_preset=0
-	    else:
-		    max_preset=0
-		    txt_preset="VOID"
-		    inst=0
-
-
-
-
-	    if max_preset<0:
-		max_preset=0
-	    if max_preset>127:
-		max_preset=127
-	    txt_menu="Select SoundFont"
-
-	elif mymode==2:
-	    preset=myoption
-	    inst = fs.get_instrument_list(sfid,lista_sf2[mysf2])
-	    txt_preset=inst[str(bank).zfill(3) + '-' + str(preset).zfill(3)]
-	    txt_menu="Select Preset"
-	    fs.program_select(channel, sfid, bank, preset)
-
+    elif mymode==1:
+        mysf2=myoption
         if len(lista_sf2)!=0:
-		display(str(mysf2)+" Ready.",lista_sf2[mysf2],txt_preset,txt_menu," <<<     MENU    >>> ")
-	else:
-		display(str(mysf2)+" Not Ready.","VOID",txt_preset,txt_menu," <<<     MENU    >>> ")
+            display(str(mysf2)+" Loading...",lista_sf2[mysf2],"","","")
+        else:
+            skipload=True
+        if not skipload:
+            preset=0
+            if sfid > 0:
+                fs.sfunload(sfid)
+            sfid = fs.sfload(lista_sf2[mysf2])
+            fs.program_select(channel, sfid, bank, 0)
+        skipload=False
+        if sfid>0:
+            if len(lista_sf2)>0:
+                inst = fs.get_instrument_list(sfid,lista_sf2[mysf2])
+                if len(inst) >0:
+                    txt_preset=inst[str(bank).zfill(3) + '-' + str(preset).zfill(3)]
+                max_preset=len(inst)-2
+            else:
+                inst=0
+                txt_preset="VOID"
+                max_preset=0
+        else:
+            max_preset=0
+            txt_preset="VOID"
+            inst=0
+
+
+
+
+        if max_preset<0:
+            max_preset=0
+        if max_preset>127:
+            max_preset=127
+        txt_menu="Select SoundFont"
+
+    elif mymode==2:
+        preset=myoption
+        inst = fs.get_instrument_list(sfid,lista_sf2[mysf2])
+        txt_preset=inst[str(bank).zfill(3) + '-' + str(preset).zfill(3)]
+        txt_menu="Select Preset"
+        fs.program_select(channel, sfid, bank, preset)
+
+    if len(lista_sf2)!=0:
+        display(str(mysf2)+" Ready.",lista_sf2[mysf2],txt_preset,txt_menu," <<<     MENU    >>> ")
+    else:
+        display(str(mysf2)+" Not Ready.","VOID",txt_preset,txt_menu," <<<     MENU    >>> ")
 
 display("OK","","","","")
 load_action() # Load first SF2 file on folder
@@ -261,50 +261,50 @@ while True:
     now = time.time()
 
     if not gpio.input(button_down) and (now - lastbuttontime) > 0.3:
-	    myoption=myoption-1
-	    load_action()
+        myoption=myoption-1
+        load_action()
 
     elif not gpio.input(button_up) and (now - lastbuttontime) > 0.3:
-	    myoption=myoption+1
-	    load_action()
+        myoption=myoption+1
+        load_action()
 
     elif not gpio.input(button_ok) and (now - lastbuttontime) > 0.3:
-	    lastbuttontime = now
-	    if menumode:
-		menumode=False
-	        if myoption==0:
-		    mymode=1
-		    myoption=mysf2
-		    max_options=len(lista_sf2)-1
-		    skipload=True
-		    load_action()
+        lastbuttontime = now
+        if menumode:
+            menumode=False
+            if myoption==0:
+                mymode=1
+                myoption=mysf2
+                max_options=len(lista_sf2)-1
+                skipload=True
+                load_action()
 
-	        elif myoption==1:
-		    mymode=2
-		    myoption=preset
-		    load_action()
-		    max_options=max_preset
+            elif myoption==1:
+                mymode=2
+                myoption=preset
+                load_action()
+                max_options=max_preset
 
-	        elif myoption==2:
+            elif myoption==2:
 
-		    if mymode==1:
-		        myoption=mysf2
-		        max_options=len(lista_sf2)-1
-		        skipload=True
-		        load_action()
-		    elif mymode==2:
-			myoptions=preset	
-			max_options=max_preset
-		        load_action()
+                if mymode==1:
+                    myoption=mysf2
+                    max_options=len(lista_sf2)-1
+                    skipload=True
+                    load_action()
+                elif mymode==2:
+                    myoptions=preset    
+                    max_options=max_preset
+                    load_action()
 
-	        elif myoption==4:
-	    	    display("","","","","")
-		    break
-	    else:
-	        menumode=True
-	        max_options=len(mymenu)-1
-	        myoption=0
-	        displaymenu()
+            elif myoption==4:
+                display("","","","","")
+                break
+        else:
+            menumode=True
+            max_options=len(mymenu)-1
+            myoption=0
+            displaymenu()
 
 
 
@@ -313,4 +313,3 @@ fs.stop_midi()
 fs.delete()
 display("Please wait.","Closing system...","","","")
 call("sudo poweroff", shell=True)
-
